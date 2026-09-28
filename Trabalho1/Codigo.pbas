@@ -1,0 +1,232 @@
+program Codigo
+dim contador,x, i, k, numero, numeroREAL as integer
+dim valor, posicao as integer
+dim teclado as byte[16]
+dim borda, modo, pausa as boolean
+dim memoria as byte[9]
+dim digito as byte[10]
+dim valor_antigo as longint
+
+sub procedure interrupt()
+    If INTCON.T0IF = 1 THEN
+       inc(contador)
+       if contador = 1000 then
+             if pausa = true then
+                 if porta.1 = 0 then
+                   porta.1 = 1
+                 else
+                     porta.1 = 0
+                 end if
+                 inc(valor)
+             end if
+          contador = 0
+       end if
+       Intcon.T0IF = 0
+    end if
+end sub
+
+
+sub procedure decompor(dim num as longint)
+    digito[8] = num mod 10             ' Unidade
+    digito[7] = (num / 10) mod 10      ' Dezena
+    digito[6] = (num / 100) mod 10     ' Centena
+    digito[5] = (num / 1000) mod 10    ' Milhar
+    digito[4] = (num / 10000) mod 10
+    digito[3] = (num / 100000) mod 10
+    digito[2] = (num / 1000000) mod 10
+    digito[1] = (num / 10000000) mod 10
+
+end sub
+sub procedure mostra()
+       decompor(valor)
+       for i = 1 to 8
+       clearbit(portc, 2)
+       spi_write(i)
+       spi_write(digito[i])
+       setbit(portc, 2)
+       next i
+end sub
+
+sub procedure limpa()
+    for x = 1 to 8
+      clearbit(portc, 2)
+      spi_write(x)
+      spi_write(0)
+      setbit(portc, 2)
+    next x
+end sub
+
+main:
+    TRISA=%11111100
+    TRISB=%00011000
+    TRISC=%00111011
+
+    ANSEL=0
+    ANSELH=0
+
+    INTCON=%10100000
+    OPTION_REG=%10010001
+
+    spi_init
+
+    i = 0
+    k = 0
+    modo = false
+    pausa = false
+    ' Code B
+    clearbit(portc, 2)
+    spi_Write(0x09)
+    spi_write(0xFF)
+    setbit(portc, 2)
+
+    ' brilho
+    clearbit(portc, 2)
+    spi_Write(0x0A)
+    spi_write(0x0F)
+    setbit(portc, 2)
+
+    ' scan
+    clearbit(portc, 2)
+    spi_write(0x0B)
+    spi_write(0x07)
+    setbit(portc, 2)
+
+    ' liga
+    clearbit(portc, 2)
+    spi_write(0x0C)
+    spi_write(0x01)
+    setbit(portc, 2)
+
+    ' desliga teste
+    clearbit(portc, 2)
+    spi_write(0x0F)
+    spi_write(0x00)
+    setbit(portc, 2)
+
+    limpa()
+
+teclado[0] = 7
+teclado[1] = 4
+teclado[2] = 1
+teclado[3] = 10   ' ON/C
+
+teclado[4] = 8
+teclado[5] = 5
+teclado[6] = 2
+teclado[7] = 0
+
+teclado[8] = 9
+teclado[9] = 6
+teclado[10] = 3
+teclado[11] = 11  ' =
+
+teclado[12] = 12  ' /
+teclado[13] = 13  ' *
+teclado[14] = 14  ' -
+teclado[15] = 15  ' +
+
+for k = 1 to 8
+    memoria[k] = 0
+next k
+
+execute:
+        delay_ms(100)
+
+        if PORTB.4 = 1 then
+           if borda=false then
+              borda=true
+              if PORTC.1 = 1 then numero = numero + 1 end if
+              if PORTC.3 = 1 then numero = numero + 2 end if
+              if PORTC.4 = 1 then numero = numero + 4 end if
+              if PORTC.5 = 1 then numero = numero + 8 end if
+
+              select case numero
+                   case 0
+                        numeroREAL = 7
+                   case 1
+                        numeroREAL = 4
+                   case 2
+                        numeroREAL = 1
+                   case 3
+                        numeroREAL = 20 ' ON/C
+                   case 4
+                        numeroREAL = 8
+                   case 5
+                        numeroREAL = 5
+                   case 6
+                        numeroREAL = 2
+                   case 7
+                        numeroREAL = 0
+                   case 8
+                        numeroREAL = 9
+                   case 9
+                        numeroREAL = 6
+                   case 10
+                        numeroREAL = 3
+                   case 11
+                        numeroREAL = 21 ' =
+                  case  12
+                        numeroREAL = 22 ' /
+                   case 13
+                        numeroREAL = 23 ' X
+                   case 14
+                        numeroREAL = 24 ' -
+                   case 15
+                        numeroREAL = 25  ' +
+              end select
+             numero = 0
+
+             if (numeroREAL >= 0) and (numeroREAL <= 9) then
+                  if i >= 8 then
+                      i = 0
+                  end if
+                      inc(i)
+                      memoria[i] = numeroREAL
+                      clearbit(portc, 2)
+                      spi_write(i)
+                      spi_write(numeroREAL)
+                      setbit(portc, 2)               '
+              end if
+            if numeroREAL = 20 then
+               limpa()
+               i = 0
+            end if
+            if numeroREAL = 21 then
+               limpa()
+               modo = not modo
+               if modo = false then
+               PORTA.0 = 0
+               for k = 1 to i
+                    clearbit(portc, 2)
+                    spi_write(k)
+                    spi_write(memoria[k])
+                    setbit(portc, 2)
+                next k
+               end if
+            end if
+            if numeroREAL = 25 then
+               pausa = not pausa
+            end if
+            if numeroREAL = 24 then
+               valor = 0
+               PORTA.1 = 0
+            end if
+            
+           end if
+        end if
+        if PORTB.4 = 0 then borda=false end if
+
+       if modo = true  then
+          mostra()
+          PORTA.0 = 1
+          if valor <> valor_antigo then
+                mostra()
+                valor_antigo = valor
+            end if
+        end if
+
+
+
+
+goto execute
+end.

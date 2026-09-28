@@ -1,0 +1,11 @@
+main
+	Enviar
+		SPI_write
+	Nivel
+		Div_16x16_S
+			Div_16x16_S_L
+	ADC_read
+		Delay_22us
+	inicializaSPI
+		SPI_write
+	SPI_init

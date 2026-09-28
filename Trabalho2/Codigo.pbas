@@ -1,0 +1,110 @@
+program Codigo
+
+dim x, y, i as integer
+dim a1, a2, a3 as integer
+dim n1, n2, n3 as integer
+dim linha as byte[8]
+
+
+sub function Nivel(dim adc  as integer) as integer
+  result = (adc * 8) / 1023
+end sub
+
+sub procedure Enviar()
+dim i as byte
+  for i = 1 to 8
+    clearbit(PORTC,2)
+    SPI_Write(i)
+    SPI_Write(linha[i-1])
+    setbit(PORTC,2)
+  next i
+end sub
+
+sub procedure inicializaSPI()
+
+               clearbit(portc,2)
+               spi_Write(0x09)
+               spi_Write(0x00)
+
+               setbit(portc,2)
+
+               clearbit(portc,2)
+               spi_Write(0x0A)
+               spi_Write(0x0F)
+               setbit(portc,2)
+
+               clearbit(portc,2)
+               spi_Write(0x0b)
+               spi_Write(0x07)
+               setbit(portc,2)
+
+               clearbit(portc,2)
+               spi_Write(0x0C)
+               spi_Write(0x01)
+               setbit(portc,2)
+
+
+               clearbit(portc,2)
+               spi_Write(0x00)
+               spi_Write(0xFF)
+               setbit(portc,2)
+
+               for y = 129 to 136
+                   clearbit(portc,2)
+                   spi_write(y)
+                   spi_write(0)
+                   setbit(portc,2)
+               next y
+end sub
+
+
+
+main:
+  TRISA=%11111111
+  TRISB=%00001111
+  TRISC=%00000000
+  INTCON=%00000000
+  ANSEL=%00000000
+  ANSELH=%00000000
+
+  SPI_INIT
+
+  setbit(portc,2)
+
+  inicializaSPI()
+
+  executa:
+    a1 = ADC_Read(0)
+    a2 = ADC_Read(1)
+    a3 = ADC_Read(2)
+
+    n1 = Nivel(a1)
+    n2 = Nivel(a2)
+    n3 = Nivel(a3)
+
+    ' limpa display
+    for i = 0 to 7
+      linha[i] = 0
+    next i
+
+    ' entrada 1 (colunas 0-1)
+    for i = 0 to n1
+      linha[i] = linha[i] or %00000011
+    next i
+
+    ' entrada 2 (colunas 3-4)
+    for i = 0 to n2
+      linha[i] = linha[i] or %00011000
+    next i
+
+    ' entrada 3 (colunas 6-7)
+    for i = 0 to n3
+      linha[i] = linha[i] or %11000000
+    next i
+
+    Enviar()
+
+    delay_ms(50)
+
+  goto executa
+end.
