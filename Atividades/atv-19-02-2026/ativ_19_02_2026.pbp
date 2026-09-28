@@ -1,0 +1,36 @@
+[DeviceName]
+Value=P16F690
+[DeviceClock]
+Value=4
+[MainUnit]
+Value=ativ_19_02_2026.pbas
+[DeviceFlags]
+Count=10
+Value0=_FCMEN_OFF = $37FF
+Value1=_IESO_OFF = $3BFF
+Value2=_BOR_OFF = $3CFF
+Value3=_CPD_OFF = $3FFF
+Value4=_CP_OFF = $3FFF
+Value5=_MCLRE_ON = $3FFF
+Value6=_PWRTE_ON = $3FEF
+Value7=_WDT_OFF = $3FF7
+Value8=_XT_OSC = $3FF9
+Value9=_EXTRC_OSC_CLKOUT = $3FFF
+[BuildSimDebug]
+Build=0
+SimDebug=0
+[ProjectFiles]
+Count=0
+[OtherFiles]
+Count=1
+Value0=C:\Users\tyson\OneDrive\Documentos\Engenharia_9_Termo\Sistemas_embarcados_II\Atividades\atv-19-02-2026\ativ_19_02_2026.pbas
+[TabIndex]
+Value=0
+[SearchPath]
+Count=4
+Value0=C:\Program Files (x86)\Mikroelektronika\mikroBasic\Defs\
+Value1=C:\Program Files (x86)\Mikroelektronika\mikroBasic\Uses\p16\
+Value2=C:\Users\tyson\OneDrive\Documentos\Engenharia_9_Termo\Sistemas_embarcados_II\Atividades\atv-19-02-2026\
+Value3=D:\Engenharia_9_Termo\Sistemas_embarcados_II\
+[EEPROMinfo]
+isused=0

@@ -1,0 +1,157 @@
+program ativ_19_02_2026
+
+dim x as integer
+dim y, y1 as integer
+dim h, h1 as integer
+dim j, j1 as integer
+dim t, t1 as integer
+dim linha as char
+dim texto as string[6]
+dim borda1, borda2, borda3, borda4 as boolean
+
+sub procedure limpa()
+    for x = 129 to 136
+      clearbit(portc, 2)
+      spi_write(x)
+      spi_write(0)
+      setbit(portc, 2)
+    next x
+end sub
+
+main:
+
+TRISA=%11111111
+TRISB=%00111111
+TRISC=%00000000
+INTCON=%00000000
+ANSEL=%00000000
+ANSELH=%00000000
+
+y=0
+
+SPI_INIT
+
+setbit(portc,2)
+
+'desliga code bcd
+clearbit(portc, 2)
+spi_Write(0x09) '9
+spi_write(0xff) '255
+setbit(portc, 2)
+'luminosidade
+clearbit(portc, 2)
+spi_Write(0x0A) '10
+spi_write(0x0F) '25
+setbit(portc, 2)
+
+'escan
+clearbit(portc, 2)
+spi_write(0x0b) '11
+spi_write(0x07) '7
+setbit(portc, 2)
+'ligar
+clearbit(portc, 2)
+spi_write(0x0C) '12
+spi_write(0x01) '1
+setbit(portc, 2)
+'desligar teste
+clearbit(portc, 2)
+spi_write(0x00) '0
+spi_write(0xFF) '255
+setbit(portc, 2)
+
+
+limpa()
+
+ execute:
+if porta.0 = 1 then
+   if borda1 = false then
+      borda1 = true
+      inc(y)
+      if y > 9 then
+         y = 0
+        inc(y1)
+        clearbit(portc, 2)
+        spi_write(0x81)
+        spi_write(y)
+        setbit(portc, 2)
+      end if
+      clearbit(portc, 2)
+      spi_write(0x82)
+      spi_write(y)
+      setbit(portc, 2)
+   end if
+   if porta.0 = 0 then borda1 = false end if
+end if
+
+
+if porta.1 = 1 then
+   if borda2 = false then
+      borda2 = true
+      inc(h)
+      if h > 9 then
+         h = 0
+        inc(h1)
+        clearbit(portc, 2)
+        spi_write(0x83)
+        spi_write(h1)
+        setbit(portc, 2)
+      end if
+      clearbit(portc, 2)
+      spi_write(0x84)
+      spi_write(h)
+      setbit(portc, 2)
+   end if
+   if porta.1 = 0 then borda2 = false end if
+end if
+
+
+if porta.2 = 1 then
+   if borda3 = false then
+      borda3 = true
+      inc(j)
+      if j > 9 then
+         j = 0
+        inc(j1)
+        clearbit(portc, 2)
+        spi_write(0x85)
+        spi_write(j1)
+        setbit(portc, 2)
+      end if
+      clearbit(portc, 2)
+      spi_write(0x86)
+      spi_write(j)
+      setbit(portc, 2)
+   end if
+   if porta.2 = 0 then borda3 = false end if
+end if
+
+
+if portb.4 = 1 then
+   if borda4 = false then
+      borda4 = true
+      inc(t)
+      if t > 9 then
+         t = 0
+        inc(t1)
+        clearbit(portc, 2)
+        spi_write(0x87)
+        spi_write(t1)
+        setbit(portc, 2)
+      end if
+      clearbit(portc, 2)
+      spi_write(0x88)
+      spi_write(t)
+      setbit(portc, 2)
+   end if
+   if portb.4 = 0 then borda4 = false end if
+end if
+
+
+if portb.5 = 1 then
+      limpa()
+end if
+
+
+ goto execute
+end.

@@ -1,0 +1,5 @@
+main
+	limpa
+		SPI_write
+	SPI_write
+	SPI_init
